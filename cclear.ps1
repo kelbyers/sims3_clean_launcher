@@ -18,7 +18,7 @@ function Clear-Sims3Cache {
             "Thumbnails\CASThumbnails.package", 
             "Thumbnails\ObjectThumbnails.package"
         ) | ForEach-Object {
-            Remove-Item "$_\*" -ErrorAction SilentlyContinue
+            Remove-Item "$_" -ErrorAction SilentlyContinue
         }
 
         # remove temp package files in DCBackup, but do not remove ccmerged.package
@@ -28,7 +28,7 @@ function Clear-Sims3Cache {
 
         # clean up script dumps and crash dumps
         @("xcpt*.*", "ScriptError_*.*", "KW*.xml") `
-        | ForEach-Object { Remove-Item "$_\*" -ErrorAction SilentlyContinue }
+        | ForEach-Object { Get-ChildItem . -Filter "$_" | Remove-Item }
 
         # clean up FeaturedItems (ads for Store Content)
         @(Get-ChildItem FeaturedItems -Recurse) | Remove-Item -ErrorAction SilentlyContinue
