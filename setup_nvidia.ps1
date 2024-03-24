@@ -13,6 +13,11 @@ function SetupNvidia {
 
     $driver_version = $driver_version -replace '\d(\d+)\.(\d+)', '$1$2'
 
+    # check if the new driver line is already in the options.ini file, using a regular expression
+    if ((Get-Content -Path $OptionsIniPath) -match "lastdevice *= *.*;${driver_version}") {
+        return
+    }
+
     # set the driver version in The Sims 3's options.ini file
     # change the line for lastdevice in the options.ini file
     # Format: lastdevice = 0;10de;2486;BCEF
