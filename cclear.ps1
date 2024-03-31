@@ -10,12 +10,12 @@ function Clear-Sims3Cache {
         # Thumbnails\CASThumbnails.package: thumbnails for CAS parts
         # Thumbnails\ObjectThumbnails.package: thumbnails for game objects
         @(
-            "CASPartCache.package", 
-            "compositorCache.package", 
-            "scriptCache.package", 
-            "simCompositorCache.package", 
-            "socialCache.package", 
-            "Thumbnails\CASThumbnails.package", 
+            "CASPartCache.package",
+            "compositorCache.package",
+            "scriptCache.package",
+            "simCompositorCache.package",
+            "socialCache.package",
+            "Thumbnails\CASThumbnails.package",
             "Thumbnails\ObjectThumbnails.package"
         ) | ForEach-Object {
             Remove-Item "$_" -ErrorAction SilentlyContinue
@@ -46,6 +46,11 @@ function Clear-Sims3Cache {
     else {
         Write-Host "*\The Sims 3\ not found"
         exit 1
-    }    
+    }
 }
 
+# run Clear-Sims3Cache if invoked from the command line. This will use the
+# current working directory.
+if ($MyInvocation.InvocationName -ne '.') {
+    Clear-Sims3Cache
+}
