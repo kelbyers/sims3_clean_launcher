@@ -35,8 +35,10 @@ function Clear-Sims3Cache {
 
         # make sure FeaturedItems cannot have new content downloaded
         # make sure ACLs are clean before denying: WD - write data/add file
+        Write-Host "Resetting ACLs on FeaturedItems..."
         icacls FeaturedItems /reset
         $username = $env:UserName
+        Write-Host "Setting ACLs on FeaturedItems..."
         icacls FeaturedItems /deny "${username}:(OI)(CI)(WD)"
 
         # clean up DCCache TMP files
@@ -52,5 +54,6 @@ function Clear-Sims3Cache {
 # run Clear-Sims3Cache if invoked from the command line. This will use the
 # current working directory.
 if ($MyInvocation.InvocationName -ne '.') {
+    write-host "Clearing cache (from script)..."
     Clear-Sims3Cache
 }
