@@ -24,6 +24,7 @@ option2 = four
     Set-Content -Path $sims3OptionsIniPath -Value $startingOptions
 }
 
+
 Describe 'SetupNvidia' {
     BeforeEach {
         Mock nvidia-smi { return $version }
@@ -33,7 +34,7 @@ Describe 'SetupNvidia' {
         SetupNvidia -OptionsIniPath $sims3OptionsIniPath
         $result = Get-Content -Path $sims3OptionsIniPath
         $expected = Get-Content -Path $expectedFile
-        
+
         $result | Should -Be $expected
     }
 
