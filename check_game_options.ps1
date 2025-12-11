@@ -1,4 +1,5 @@
 # helpers to check Sims 3 game options
+. "$PSScriptRoot\system_utils.ps1"
 #
 # All this is used for at the moment is to check if the game is running in
 # fullscreen or windowed mode
@@ -34,7 +35,7 @@ Function Get-IniFile {
         }
     }
     Catch [System.Management.Automation.ItemNotFoundException] {
-        Write-Warning "File $file not found!"
+        Write-Warning "File $Path not found!"
     }
     $ini
 }
@@ -61,4 +62,41 @@ function Get-BooleanOption {
 
 function Get-Fullscreen {
     Get-BooleanOption -key fullscreen -defaultTrue @args
+}
+
+function Should-Start-BorderlessGaming {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$true)]
+        [hashtable]$GameOptions
+    )
+
+    # Check fullscreen status. Defaults to true if not set.
+    $isFullscreen = $true
+    if ($GameOptions.ContainsKey('fullscreen')) {
+        $isFullscreen = ($GameOptions.fullscreen -eq '1')
+    }
+
+    # If fullscreen is on, we don't need Borderless Gaming.
+    if ($isFullscreen) {
+        return $false
+    }
+
+    # Get system resolution. Let this throw if it fails.
+    $systemResolution = Get-DisplayResolution
+
+    # Get and parse game resolution.
+    $gameResolutionString = $GameOptions.resolution
+    if (-not $gameResolutionString) {
+        # Not an error, just means we can't match, so don't run.
+        return $false
+    }
+
+    $gameResolutionParts = $gameResolutionString.Split(' ')
+    # Let this throw if parsing fails.
+    $gameWidth = [int]$gameResolutionParts[0]
+    $gameHeight = [int]$gameResolutionParts[1]
+
+    # Compare resolutions
+    return (($gameWidth -eq $systemResolution.Width) -and ($gameHeight -eq $systemResolution.Height))
 }

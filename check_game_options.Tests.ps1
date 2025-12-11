@@ -90,4 +90,58 @@ Describe 'CheckGameOptions' {
         }
 
     }
+
+    Describe 'Should-Start-BorderlessGaming' {
+        It 'returns false when fullscreen is enabled' {
+            $options = @{ fullscreen = '1'; resolution = '1920 1080 0' }
+            Should-Start-BorderlessGaming -GameOptions $options | Should -Be $false
+        }
+
+        It 'returns false when fullscreen is not set (defaults to true)' {
+            $options = @{ resolution = '1920 1080 0' }
+            Should-Start-BorderlessGaming -GameOptions $options | Should -Be $false
+        }
+
+        It 'returns true when windowed and resolution matches' {
+            Mock Get-DisplayResolution { return [PSCustomObject]@{ Width = 1920; Height = 1080 } }
+            $options = @{ fullscreen = '0'; resolution = '1920 1080 0' }
+            Should-Start-BorderlessGaming -GameOptions $options | Should -Be $true
+        }
+
+        It 'returns false when windowed and resolution does not match' {
+            Mock Get-DisplayResolution { return [PSCustomObject]@{ Width = 1920; Height = 1080 } }
+            $options = @{ fullscreen = '0'; resolution = '1600 900 0' }
+            Should-Start-BorderlessGaming -GameOptions $options | Should -Be $false
+        }
+
+        It 'returns false when windowed and horizontal resolution does not match' {
+            Mock Get-DisplayResolution { return [PSCustomObject]@{ Width = 1920; Height = 1080 } }
+            $options = @{ fullscreen = '0'; resolution = '1921 1080 0' }
+            Should-Start-BorderlessGaming -GameOptions $options | Should -Be $false
+        }
+
+        It 'returns false when windowed and vertical resolution does not match' {
+            Mock Get-DisplayResolution { return [PSCustomObject]@{ Width = 1920; Height = 1080 } }
+            $options = @{ fullscreen = '0'; resolution = '1920 1081 0' }
+            Should-Start-BorderlessGaming -GameOptions $options | Should -Be $false
+        }
+
+        It 'returns false when resolution key is missing' {
+            Mock Get-DisplayResolution { return [PSCustomObject]@{ Width = 1920; Height = 1080 } }
+            $options = @{ fullscreen = '0' }
+            Should-Start-BorderlessGaming -GameOptions $options | Should -Be $false
+        }
+
+        It 'throws when Get-DisplayResolution throws' {
+            Mock Get-DisplayResolution { throw 'Display Error' }
+            $options = @{ fullscreen = '0'; resolution = '1920 1080 0' }
+            { Should-Start-BorderlessGaming -GameOptions $options } | Should -Throw 'Display Error'
+        }
+
+        It 'throws when game resolution string is malformed' {
+            Mock Get-DisplayResolution { return [PSCustomObject]@{ Width = 1920; Height = 1080 } }
+            $options = @{ fullscreen = '0'; resolution = '1920_bad_string' }
+            { Should-Start-BorderlessGaming -GameOptions $options } | Should -Throw
+        }
+    }
 }

@@ -4,29 +4,31 @@
 . $PSScriptRoot\check_game_options.ps1
 
 ## do the BG first, otherwise the EA window could hide the UA warning
-# check to see if fullscreen or windowed is enabled in the game's ini file
-# this checks the default Options.ini file
-$fullscreen = Get-Fullscreen
-Write-Host "Fullscreen is ${fullscreen}..."
+try {
+    $gameOptions = Get-GameOptions
+    Write-Host "Fullscreen is $($gameOptions.fullscreen -eq '1') (from game options)..." # Update message
+    Write-Host "Resolution is $($gameOptions.resolution)"
 
-if ($fullscreen -eq $false) {
-    # if fullscreen is disabled, then we want to launch Borderless Gaming
+    if (Should-Start-BorderlessGaming -GameOptions $gameOptions) {
+        # let user know we are going to start Borderless Gaming, so the user knows why
+        # they are getting a UA popup
+        Write-Host "Checking Borderless Gaming..."
 
-    # let use know we are going to start Borderless Gaming, so the user knows why
-    # they are getting a UA popup
-    Write-Host "Checking Borderless Gaming..."
-
-    # check if Borderless Gaming is running
-    $borderlessGaming = Get-Process BorderlessGaming -ErrorAction SilentlyContinue
-    if ($borderlessGaming) {
-        Write-Host "Borderless Gaming is already running"
+        # check if Borderless Gaming is running
+        $borderlessGaming = Get-Process BorderlessGaming -ErrorAction SilentlyContinue
+        if ($borderlessGaming) {
+            Write-Host "Borderless Gaming is already running"
+        }
+        else {
+            # start Borderless Gaming
+            Write-Host "Starting Borderless Gaming..."
+            Start-Sleep -Seconds 2
+            & "C:\Program Files (x86)\Borderless Gaming\BorderlessGaming.exe"
+        }
     }
-    else {
-        # start Borderless Gaming
-        Write-Host "Starting Borderless Gaming..."
-        Start-Sleep -Seconds 2
-        & "C:\Program Files (x86)\Borderless Gaming\BorderlessGaming.exe"
-    }
+}
+catch {
+    Write-Warning "Could not check for Borderless Gaming due to an error: $($_.Exception.Message). Borderless Gaming will not be launched automatically."
 }
 
 # Write-Host "Start EA App..."
