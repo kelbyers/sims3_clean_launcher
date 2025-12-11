@@ -13,9 +13,10 @@ function Get-DisplayResolution {
         Gets the resolution of the primary display.
     .DESCRIPTION
         This function uses the .NET System.Windows.Forms.Screen class to retrieve the
-        width and height of the primary display.
+        width and height of the primary display. It will throw an exception if the
+        underlying system calls fail.
     .EXAMPLE
-        PS C:\> Get-DisplayResolution
+        PS C:\> try { $res = Get-DisplayResolution } catch { "Failed: $_" }
 
         @{Width=1920; Height=1080}
     .OUTPUTS
@@ -24,16 +25,10 @@ function Get-DisplayResolution {
     [CmdletBinding()]
     param()
 
-    try {
-        $primaryScreen = Get-PrimaryScreen
-        $resolution = [PSCustomObject]@{
-            Width  = $primaryScreen.Bounds.Width
-            Height = $primaryScreen.Bounds.Height
-        }
-        return $resolution
+    $primaryScreen = Get-PrimaryScreen
+    $resolution = [PSCustomObject]@{
+        Width  = $primaryScreen.Bounds.Width
+        Height = $primaryScreen.Bounds.Height
     }
-    catch {
-        Write-Error "Failed to get display resolution. Error: $($_.Exception.Message)"
-        return $null
-    }
+    return $resolution
 }

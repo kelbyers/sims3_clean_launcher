@@ -45,4 +45,15 @@ Describe 'Get-DisplayResolution (with mocking)' {
         $resolution.Height | Should -Be 5678
         Should -Invoke Get-PrimaryScreen -Exactly 1 # Verify the mock was called
     }
+
+    It 'throws an exception when the underlying call throws' {
+        # Mock the helper function to throw an exception
+        Mock Get-PrimaryScreen { throw 'Forced Exception' } -Verifiable
+
+        # Assert that calling the function results in an exception
+        { Get-DisplayResolution } | Should -Throw 'Forced Exception'
+
+        # Verify that the mock was called
+        Should -Invoke Get-PrimaryScreen -Exactly 1
+    }
 }
