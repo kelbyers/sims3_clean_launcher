@@ -1,3 +1,7 @@
+param(
+    [string]$GameLaunchCommand = ""
+)
+
 # source cclear.ps1 from $PSScriptRoot
 . $PSScriptRoot\cclear.ps1
 # source check_game_options.ps1 from $PSScriptRoot
@@ -80,8 +84,19 @@ finally {
 # Change directories to that location before loaunching the game, because the
 # dxvk (DirectX to Vulkan) driver will create its log file in the working
 # directory
-$binDir = "C:\Program Files (x86)\Steam\steamapps\common\The Sims 3\Game\Bin"
-$exe = "TS3.exe"
 
-Push-Location "${binDir}"
-& ".\${exe}"
+if (-not [string]::IsNullOrEmpty($GameLaunchCommand)) {
+    Write-Host "Launching game with custom command: $GameLaunchCommand"
+    & $GameLaunchCommand
+} else {
+    # The game exe is at
+    # "C:\Program Files (x86)\Steam\steamapps\common\The Sims 3\Game\Bin\TS3.exe"
+    # Change directories to that location before loaunching the game, because the
+    # dxvk (DirectX to Vulkan) driver will create its log file in the working
+    # directory
+    $binDir = "C:\Program Files (x86)\Steam\steamapps\common\The Sims 3\Game\Bin"
+    $exe = "TS3.exe"
+
+    Push-Location "${binDir}"
+    & ".\${exe}"
+}
